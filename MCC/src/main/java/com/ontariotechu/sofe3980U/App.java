@@ -3,7 +3,9 @@ package com.ontariotechu.sofe3980U;
 
 import java.io.FileReader; 
 import java.util.List;
-import com.opencsv.*;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 /**
  * Evaluate Single Variable Continuous Regression
@@ -25,22 +27,51 @@ public class App
 			System.out.println( "Error reading the CSV file" );
 			return;
 		}
+
+		int[][] matrix = new int[5][5];
+
+
+		double ce = 0.0;
+
+		for(String[] row : allData) {
+
+			int trueClass = Integer.parseInt(row[0]);
+			int trueIdx = trueClass - 1;
+
+			double maxProb = -1;
+			int predIdx = -1;
+
+			for(int i = 1; i <= 5; i++) {
+				double p  = Double.parseDouble(row[i]);
+				
+				if(p > maxProb) {
+					maxProb = p;
+					predIdx = i - 1;
+				}
+			}
+
+			matrix[predIdx][trueIdx]++;
+
+			ce += Math.log(Double.parseDouble(row[trueClass]));
+
+
+		}
+
 		
-		int count=0;
-		float[] y_predicted=new float[5];
-		for (String[] row : allData) { 
-			int y_true=Integer.parseInt(row[0]);
-			System.out.print(y_true);
-			for(int i=0;i<5;i++){
-				y_predicted[i]=Float.parseFloat(row[i+1]);
-				System.out.print("  \t  "+y_predicted[i]); 
+
+		System.out.println("CE =" + -ce/allData.size());
+		System.out.println("Confusion matrix");
+
+		System.out.println("\ty=1\ty=2\ty=3\ty=4\ty=5");
+		for(int i = 0; i < 5; i++) {
+			System.out.print("y=" + (i+1) + "\t");
+			for(int j = 0; j < 5; j++) {
+				System.out.print(matrix[i][j] + "\t");
 			}
-			System.out.println(); 
-			count++;
-			if (count==10){
-				break;
-			}
-		} 
+			System.out.println();
+		}
+		
+		
 
 	}
 	
